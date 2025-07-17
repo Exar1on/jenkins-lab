@@ -10,15 +10,46 @@ services:
     volumes:
       - jenkins_home: var/jenkins_home
   
-  agent:
+  agent-dev:
     build:
       context: ./agent
+      args:
+        ENVIRONMENT: dev
     image: jenkins-agent:latest
     environment:
       - JENKINS_URL=http://master:8080
+    labels:
+      - "jenkins-dev"
+    depends_on:
+      - master
+  
+      
+  agent-test:
+    build:
+      context: ./agent
+      args:
+        ENVIRONMENT: test
+    image: jenkins-agent:latest
+    environment:
+      - JENKINS_URL=http://master:8080
+    labels:
+      - "jenkins-test"
     depends_on:
       - master
 
+  agent-prod:
+    build:
+      context: ./agent
+      args:
+        ENVIRONMENT: prod
+    image: jenkins-agent:latest
+    environment:
+      - JENKINS_URL=http://master:8080
+    labels:
+      - "jenkins-prod"
+    depends_on:
+      - master
+      
 volumes:
   jenkins_home:
 
