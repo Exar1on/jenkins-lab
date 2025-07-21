@@ -1,18 +1,18 @@
-version: '3.8'
-
 services:
   master:
     build:
       context: ./master
+      dockerfile: master.Dockerfile
     image: jenkins-master:latest
     ports:
       - "8080:8080"
     volumes:
-      - jenkins_home: var/jenkins_home
-  
+      - jenkins_home:/var/jenkins_home
+
   agent-dev:
     build:
       context: ./agent
+      dockerfile: agent.Dockerfile
       args:
         ENVIRONMENT: dev
     image: jenkins-agent:latest
@@ -22,11 +22,11 @@ services:
       - "jenkins-dev"
     depends_on:
       - master
-  
-      
+
   agent-test:
     build:
       context: ./agent
+      dockerfile: agent.Dockerfile
       args:
         ENVIRONMENT: test
     image: jenkins-agent:latest
@@ -40,6 +40,7 @@ services:
   agent-prod:
     build:
       context: ./agent
+      dockerfile: agent.Dockerfile
       args:
         ENVIRONMENT: prod
     image: jenkins-agent:latest
@@ -49,7 +50,7 @@ services:
       - "jenkins-prod"
     depends_on:
       - master
-      
+
 volumes:
   jenkins_home:
 

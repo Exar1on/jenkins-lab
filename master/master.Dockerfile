@@ -1,5 +1,5 @@
-FROM jenkins/jenkins:lts-jdk17
+FROM jenkins/jenkins:lts
 
 USER root
-RUN apt-get update && apt-get upgrade
+RUN apt-get update && apt-get -y upgrade
 USER jenkins
