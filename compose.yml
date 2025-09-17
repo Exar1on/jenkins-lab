@@ -3,56 +3,80 @@ services:
     build:
       context: ./master
       dockerfile: master.Dockerfile
-    image: jenkins-master:latest
+    #image: jenkins-master:latest
     ports:
       - "8080:8080"
     volumes:
       - jenkins_home:/var/jenkins_home
 
+  vault-agent:
+    #build:
+    #  context:  ./vault/config
+    #  dockerfile: vault.Dockerfile
+    image: hashicorp/vault:1.17
+    env_file: .env
+    volumes:
+      - ./vault/config/:/secrets/config/:rw
+      #- ./vault/config/role_id:/config/role_id:ro
+    #entrypoint:  ["vault", "agent", "-config=/secrets/config/agent_conf.hcl"]
+    entrypoint: ["/bin/sh", "/secrets/config/entrypoint.sh"]
+    #command:  >
+    #  /bin/sh -c "vault agent -config=/secrets/config/agent_conf.hcl"
+    #extra_hosts:
+    # - "host.docker.internal:host-gateway"
+    
   agent-dev:
     build:
       context: ./agent
       dockerfile: agent.Dockerfile
       args:
         ENVIRONMENT: dev
-    image: jenkins-agent:latest
-    environment:
-      - JENKINS_URL=http://master:8080
+    #image: jenkins-agent:latest
+    env_file: .env
+    volumes:
+      - ./vault/config/:/tmp/vault/:r
+    #environment:
+      #- JENKINS_SECRET=$(</tmp/vault/render.txt)
+
     labels:
       - "jenkins-dev"
     depends_on:
-      - master
+      master:
+        condition: service_started
+      vault-agent:
+          condition: service_completed_successfully
 
-  agent-test:
-    build:
-      context: ./agent
-      dockerfile: agent.Dockerfile
-      args:
-        ENVIRONMENT: test
-    image: jenkins-agent:latest
-    environment:
-      - JENKINS_URL=http://master:8080
-    labels:
-      - "jenkins-test"
-    depends_on:
-      - master
+  #agent-test:
+  #  build:
+  #    context: ./agent
+  #    dockerfile: agent.Dockerfile
+  #    args:
+  #      ENVIRONMENT: test
+  #  image: jenkins-agent:latest
+  #  environment:
+  #    - JENKINS_URL=http://127.0.0.1:8080
+  #  labels:
+  #    - "jenkins-test"
+  #  depends_on:
+  #    - master
 
-  agent-prod:
-    build:
-      context: ./agent
-      dockerfile: agent.Dockerfile
-      args:
-        ENVIRONMENT: prod
-    image: jenkins-agent:latest
-    environment:
-      - JENKINS_URL=http://master:8080
-    labels:
-      - "jenkins-prod"
-    depends_on:
-      - master
+  #agent-prod:
+  #  build:
+  #    context: ./agent
+  #    dockerfile: agent.Dockerfile
+  #    args:
+  #      ENVIRONMENT: prod
+  #  image: jenkins-agent:latest
+  #  environment:
+  #    - JENKINS_URL=http://127.0.0.1:8080
+  #  labels:
+  #    - "jenkins-prod"
+  #  depends_on:
+  #    - master
 
 volumes:
   jenkins_home:
+
 
 networks:
   default:
