@@ -14,8 +14,9 @@ jobs/**
 builds
 indexing
 
-# Exclude only config.xml files in repository subdirectories.
+# Exclude
 !config.xml
+!*.sh
 
 # Don't track workspaces (when users build on the master).
 jobs/**/*workspace
