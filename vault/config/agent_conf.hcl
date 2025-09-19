@@ -2,7 +2,7 @@
 #  address = "https://172.17.0.1:8200"
 #  ca_cert = "/usr/share/local/ca-certificates/ca.crt"
 #}
-log_level = "debug"
+#log_level = "debug"
 
 auto_auth {
   method {
